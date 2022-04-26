@@ -1,3 +1,4 @@
-http://download.pytorch.org/whl/cpu/torch-1.11.0+cpu-cp310-cp310-linux_x86_64.whl
+-f https://download.pytorch.org/whl/torch_stable.html
+torch==1.10.0+cpu
 numpy==1.22
 easyocr==1.4.2
