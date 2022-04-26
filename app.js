@@ -1,10 +1,10 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-//onst helpers = require('./helpers');
+
 const app = express();
-const Jimp = require('jimp');
-//cv = require()
+
+
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
