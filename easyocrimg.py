@@ -3,7 +3,7 @@ import numpy as np
 import json
 import easyocr
 
-reader = easyocr.Reader(['en'])
+reader = easyocr.Reader(['en'], gpu=False)
 # Assume that the address of the image is given as the
 # Second arg on file call.
 
