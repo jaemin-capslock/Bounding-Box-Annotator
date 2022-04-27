@@ -42,7 +42,7 @@ function call_easyocr(req, res) {
         
         
     });
-    var jimpSrc = await Jimp.read(myFilePath);
+    var jimpSrc = Jimp.read(myFilePath);
     var src = cv.matFromImageData(jimpSrc.bitmap);
     var newimg = addBoxes(src, boxes);
     
