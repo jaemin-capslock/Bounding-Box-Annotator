@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-
+const cv2 = require('opencv.js');
 const app = express();
 
 
@@ -25,6 +25,7 @@ app.use('/uploads', express.static('uploads'));
 var myFilePath;
 
 let {PythonShell} = require('python-shell');
+const Jimp = require('jimp/*');
 //const { rsqrt } = require('@tensorflow/tfjs-core');
 //const tf = require('@tensorflow/tfjs-node');
 //const model = await tf.node.loadSavedModel('./sentimentModel', [tag], signatureKey);
@@ -34,11 +35,24 @@ function call_easyocr(req, res) {
     var options = {
         args: [myFilePath]
     }
+    var response;
     PythonShell.run('./easyocrimg.py', options, function( err, data){
         if (err) res.send(err);
         boxes = data;
-        res.send(data.toString())
+        
+        
     });
+    var jimpSrc = await Jimp.read(myFilePath);
+    var src = cv.matFromImageData(jimpSrc.bitmap);
+    var newimg = addBoxes(src, boxes);
+    
+    // use newimg= writeasync?
+    new Jimp({
+        data: Buffer.from(newimg)
+      })
+      .writeAsync('output.png');
+    response += `<img src="output.png" >`;
+    res.send(response);
 }
 app.post('/upload-single', upload.single('file'), function (req, res, next) {
     console.log(JSON.stringify(req.file));
@@ -49,7 +63,17 @@ app.post('/upload-single', upload.single('file'), function (req, res, next) {
     response += '<a href="/initialdata">See data</a>'
     return res.send(response)
 })
-
+function addBoxes(image, boxes){
+    for (let i = 0; i < range(len(boxes)); i++){
+        image = cv2.rectangle(image, (boxes[i][0][0], boxes[i][0][1]), (boxes[i][1][0], boxes[i][1][1]), (255, 0, 0), 3);
+    }
+    // image = cv2.rectangle(image, (boxes[i][0][0], boxes[i][0][1]), (boxes[i][1][0], boxes[i][1][1]), color, 3)
+  return image
+}
+var jimpSrc = await Jimp.read(myFilePath);
+var src = cv.matFromImageData(jimpSrc.bitmap);
+var newimg = addBoxes(src, boxes);
+  
 
 app.listen(process.env.PORT || 5000, () => console.log(`Listening on port 3000...`));
 

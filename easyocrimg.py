@@ -35,6 +35,7 @@ readText = readTexts(result)
 
 
 print(json.dumps(box))
-print(json.dumps(readText))
+# Don't dump text for now; heroku is too small for running tf :(
+# print(json.dumps(readText))
 
 sys.stdout.flush()
