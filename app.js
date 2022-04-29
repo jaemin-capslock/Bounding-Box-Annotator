@@ -113,11 +113,10 @@ app.post('/upload-single', upload.single('file'), function (req, res, next) {
     response += "Files uploaded successfully.<br>"
     response += `<img src="${req.file.path}" /><br>`
     response += '<a href="/initialdata">See data</a>'
-    console.log(myFilePath);
+    // console.log(myFilePath);
     return res.send(response)
 })
 function addBoxes(image, boxes){
-    console.log(boxes[0][0][0])
     for (let i = 0; i < boxes.length; i++){
         let point1 = new cv2.Point(boxes[i][0][0], boxes[i][0][1]);
         let point2 = new cv2.Point(boxes[i][1][0], boxes[i][1][1]);
