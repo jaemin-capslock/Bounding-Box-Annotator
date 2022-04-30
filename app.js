@@ -6,13 +6,13 @@ const app = express();
 
 
 
-
+// Initialize Multer
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, 'uploads/');
     },
 
-    // By default, multer removes file extensions so let's add them back
+    // Make filename unique by including the current time
     filename: function(req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
@@ -20,23 +20,30 @@ const storage = multer.diskStorage({
 
 var upload = multer ({ storage: storage});
 
+// static figuration
 app.use(express.static(__dirname + '/public'));
 app.use('/uploads', express.static('uploads'));
 
 
 var myFilePath;
+// Also declare unique file path for the annotated image
 var newFilePath = 'outputimgs/' + String(Date.now()) + '_output.png';
 
 let {PythonShell} = require('python-shell');
 const Jimp = require('jimp');
-//const { rsqrt } = require('@tensorflow/tfjs-core');
-//const tf = require('@tensorflow/tfjs-node');
-//const model = await tf.node.loadSavedModel('./sentimentModel', [tag], signatureKey);
+
 app.get('/initialdata', call_new_easyocr);
 
-app.get('/newimage', function(req, res) {
-
-})
+/**
+ * Function to activate the python shell to run the easyocr
+ * inference scheme. The input image, denoted by the myFilePath global variable
+ * (which is initialized before this func call) is provided as an
+ * argument for the python function call inside. The .py file then runs
+ * easyocr API call to get bounding box coordinates, and returns them.
+ * Then we asynchronously call writeBoxes to add bounding boxes to the image.
+ * After that function call is finished, send the annotated image to the browser.
+ * 
+ */
 async function call_new_easyocr(req, res){
     var options = {
         args: [myFilePath]
@@ -60,22 +67,8 @@ async function call_new_easyocr(req, res){
                 }).catch(function () {
                     console.log("rejected");
                 })
-                /*
-                writeBoxes(dataAsArray).then(ret_val => {
-                    
-                    return res.sendfile(__dirname + '/' + ret_val);
-                    
-                    
-                })
-                // response += `<img src="/outputimgs/${Date.now()}_output.png" >`
-                resolve({ success: true, data});
-                console.log(__dirname + myPath);
-                return res.sendfile(__dirname + '/' + newFilePath);
-                //return res.send(__dirname + myPath);
                 
-                //return res.send(dataAsArray[0][0])
-                */
-        
+
             });
         }
     )
@@ -106,25 +99,32 @@ async function writeBoxes(boxes){
     //return newImagePath;
 
 }
+/**
+ * Function to accept image as an input and a hyperlink
+ * to call the python script.
+ */
 app.post('/upload-single', upload.single('file'), function (req, res, next) {
     console.log(JSON.stringify(req.file));
     myFilePath = req.file.path;
     var response = '<a href="/">Home</a><br>'
     response += "Files uploaded successfully.<br>"
     response += `<img src="${req.file.path}" /><br>`
-    response += '<a href="/initialdata">See data</a>'
+    response += '<a href="/initialdata">See image with bounding boxes</a>'
     // console.log(myFilePath);
     return res.send(response)
 })
+
+// Function that accepts image and array of boxes as an argument.
+// Uses cv's rectangle method to draw rectangular boxes on the image.
 function addBoxes(image, boxes){
     for (let i = 0; i < boxes.length; i++){
         let point1 = new cv2.Point(boxes[i][0][0], boxes[i][0][1]);
         let point2 = new cv2.Point(boxes[i][1][0], boxes[i][1][1]);
-        cv2.rectangle(image, point1, point2, [255, 0, 0, 255]);
+        cv2.rectangle(image, point1, point2, [255, 0, 0, 255], 4);
     }
   return image
 }
 
-
-app.listen(process.env.PORT || 5000, () => console.log(`Listening on port 5000...`));
+// Change port number to 5000 when deploying on heroku
+app.listen(process.env.PORT || 3000, () => console.log(`Listening on port 3000...`));
 

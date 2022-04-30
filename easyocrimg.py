@@ -3,6 +3,8 @@ import sys
 import json
 import easyocr
 
+# Configure easyocr reader. We only care when the language is English.
+# Turn off gpu (heroku doesn't have it anyways.)
 reader = easyocr.Reader(['en'], gpu=False)
 # Assume that the address of the image is given as the
 # Second arg on file call.
@@ -23,6 +25,8 @@ def getBoxes(input):
   return boxes
 
 box = getBoxes(result)
+
+'''
 def readTexts(input):
   texts = []
   for i in range(len(input)):
@@ -31,7 +35,7 @@ def readTexts(input):
   return texts
 # readText: List of texts
 readText = readTexts(result)
-
+'''
 
 
 print(json.dumps(box))
